@@ -6,6 +6,29 @@ import { RegistryEntrySelected } from "./RegistryEntrySelected";
 import styled from "@emotion/styled";
 import { generateManifest } from "./ocb-utils";
 
+const BottomPage = styled.div`
+    display: flex;
+    justify-content: space-between;
+`;
+
+const sidebarWidth = 800;
+
+const SidebarContainer = styled.div`
+    width: ${sidebarWidth}px;
+    height: 100vh;
+    overflow: auto;
+    position: fixed;
+`;
+
+const ContentContainer = styled.div`
+    margin-left: ${sidebarWidth}px;
+`;
+
+const ContentList = styled.div`
+    width: ${sidebarWidth}px;
+    margin: 0 auto;
+`;
+
 const Build = styled.button`
     height: 20px;
 `;
@@ -54,7 +77,6 @@ const getItemStyle = (isDragging, draggableStyle) => ({
 const getListStyle = (isDraggingOver) => ({
     background: isDraggingOver ? "lightblue" : "lightgrey",
     padding: grid,
-    width: 250,
 });
 
 export class Container extends Component {
@@ -123,12 +145,12 @@ export class Container extends Component {
     };
 
     onRemove(id) {
-        const item = this.getList("droppable2").find(
-            (element) => element.id == id
-        );
+        const itemIndex = this.getList("droppable2")
+            .map((e) => e.id)
+            .indexOf(id);
         const sourceClone = Array.from(this.getList("droppable2"));
         const destClone = Array.from(this.getList("droppable"));
-        const [removed] = sourceClone.splice(item.index, 1);
+        const [removed] = sourceClone.splice(itemIndex, 1);
         destClone.push(removed);
         this.setState({
             items: destClone,
@@ -145,87 +167,115 @@ export class Container extends Component {
     render() {
         return (
             <>
-                <DragDropContext onDragEnd={this.onDragEnd}>
-                    <Droppable droppableId="droppable">
-                        {(provided, snapshot) => (
-                            <div
-                                ref={provided.innerRef}
-                                style={getListStyle(snapshot.isDraggingOver)}
+                <div>
+                    <h1>OpenTelemetry Collector Builder</h1>
+                </div>
+                <BottomPage>
+                    <DragDropContext onDragEnd={this.onDragEnd}>
+                        <SidebarContainer>
+                            <Droppable
+                                isDropDisabled={true}
+                                droppableId="droppable"
                             >
-                                {this.state.items.map((item, index) => (
-                                    <Draggable
-                                        key={item.id}
-                                        draggableId={item.id}
-                                        index={index}
-                                    >
-                                        {(provided, snapshot) => (
-                                            <div
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
-                                                style={getItemStyle(
-                                                    snapshot.isDragging,
-                                                    provided.draggableProps
-                                                        .style
-                                                )}
-                                            >
-                                                {
-                                                    <RegistryEntryComponent
-                                                        registryEntry={
-                                                            item.content
-                                                        }
-                                                    />
-                                                }
-                                            </div>
+                                {(provided, snapshot) => (
+                                    <div
+                                        ref={provided.innerRef}
+                                        style={getListStyle(
+                                            snapshot.isDraggingOver
                                         )}
-                                    </Draggable>
-                                ))}
-                                {provided.placeholder}
-                            </div>
-                        )}
-                    </Droppable>
-                    <Droppable droppableId="droppable2">
-                        {(provided, snapshot) => (
-                            <div
-                                ref={provided.innerRef}
-                                style={getListStyle(snapshot.isDraggingOver)}
-                            >
-                                {this.state.selected.map((item, index) => (
-                                    <Draggable
-                                        key={item.id}
-                                        draggableId={item.id}
-                                        index={index}
                                     >
-                                        {(provided, snapshot) => (
-                                            <div
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
-                                                style={getItemStyle(
-                                                    snapshot.isDragging,
-                                                    provided.draggableProps
-                                                        .style
-                                                )}
+                                        {this.state.items.map((item, index) => (
+                                            <Draggable
+                                                key={item.id}
+                                                draggableId={item.id}
+                                                index={index}
                                             >
-                                                {
-                                                    <RegistryEntrySelected
-                                                        id={item.id}
-                                                        onRemove={this.onRemove}
-                                                        registryEntry={
-                                                            item.content
+                                                {(provided, snapshot) => (
+                                                    <div
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        style={getItemStyle(
+                                                            snapshot.isDragging,
+                                                            provided
+                                                                .draggableProps
+                                                                .style
+                                                        )}
+                                                    >
+                                                        {
+                                                            <RegistryEntryComponent
+                                                                registryEntry={
+                                                                    item.content
+                                                                }
+                                                            />
                                                         }
-                                                    />
-                                                }
-                                            </div>
+                                                    </div>
+                                                )}
+                                            </Draggable>
+                                        ))}
+                                        {provided.placeholder}
+                                    </div>
+                                )}
+                            </Droppable>
+                        </SidebarContainer>
+
+                        <ContentContainer>
+                            <Droppable droppableId="droppable2">
+                                {(provided, snapshot) => (
+                                    <ContentList
+                                        ref={provided.innerRef}
+                                        style={getListStyle(
+                                            snapshot.isDraggingOver
                                         )}
-                                    </Draggable>
-                                ))}
-                                {provided.placeholder}
-                            </div>
-                        )}
-                    </Droppable>
-                </DragDropContext>
-                <Build onClick={async () => await this.onBuild()}>Build</Build>
+                                    >
+                                        {this.state.selected.map(
+                                            (item, index) => (
+                                                <Draggable
+                                                    key={item.id}
+                                                    draggableId={item.id}
+                                                    index={index}
+                                                >
+                                                    {(provided, snapshot) => (
+                                                        <div
+                                                            ref={
+                                                                provided.innerRef
+                                                            }
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                            style={getItemStyle(
+                                                                snapshot.isDragging,
+                                                                provided
+                                                                    .draggableProps
+                                                                    .style
+                                                            )}
+                                                        >
+                                                            {
+                                                                <RegistryEntrySelected
+                                                                    id={item.id}
+                                                                    onRemove={
+                                                                        this
+                                                                            .onRemove
+                                                                    }
+                                                                    registryEntry={
+                                                                        item.content
+                                                                    }
+                                                                />
+                                                            }
+                                                        </div>
+                                                    )}
+                                                </Draggable>
+                                            )
+                                        )}
+                                        {provided.placeholder}
+                                    </ContentList>
+                                )}
+                            </Droppable>
+                        </ContentContainer>
+                    </DragDropContext>
+                    <Build onClick={async () => await this.onBuild()}>
+                        Build
+                    </Build>
+                </BottomPage>
             </>
         );
     }
