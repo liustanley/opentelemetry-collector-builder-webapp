@@ -24,12 +24,12 @@ const Input = styled.input`
 
 const Build = styled.button`
     margin-top: 8px;
-    height: 20px;
 `;
 
 export const InputContainer = ({ handleBuild }) => {
     return (
         <Container>
+            <h2>Metadata</h2>
             <DistForm onSubmit={handleBuild}>
                 <Label>
                     Module:{" "}

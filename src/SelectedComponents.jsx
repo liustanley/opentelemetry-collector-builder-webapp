@@ -5,12 +5,13 @@ import { SIDEBAR_WIDTH } from "./constants";
 import { SelectedComponent } from "./SelectedComponent";
 
 const ContentContainer = styled.div`
-    margin-left: ${SIDEBAR_WIDTH}px;
+    width: 100%;
 `;
 
 const ContentList = styled.div`
-    width: ${SIDEBAR_WIDTH}px;
-    margin: 0 auto;
+    width: 100%;
+    height: 50vh;
+    overflow: auto;
 `;
 
 export const SelectedComponents = ({
@@ -22,6 +23,7 @@ export const SelectedComponents = ({
     return (
         <>
             <ContentContainer>
+                <h2>Selected Components</h2>
                 <Droppable droppableId="droppable2">
                     {(provided, snapshot) => (
                         <ContentList
@@ -29,31 +31,12 @@ export const SelectedComponents = ({
                             style={getListStyle(snapshot.isDraggingOver)}
                         >
                             {selected.map((item, index) => (
-                                <Draggable
-                                    key={item.id}
-                                    draggableId={item.id}
+                                <SelectedComponent
+                                    component={item}
                                     index={index}
-                                >
-                                    {(provided, snapshot) => (
-                                        <div
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                            style={getItemStyle(
-                                                snapshot.isDragging,
-                                                provided.draggableProps.style
-                                            )}
-                                        >
-                                            {
-                                                <SelectedComponent
-                                                    id={item.id}
-                                                    onRemove={onRemove}
-                                                    component={item.content}
-                                                />
-                                            }
-                                        </div>
-                                    )}
-                                </Draggable>
+                                    getItemStyle={getItemStyle}
+                                    onRemove={onRemove}
+                                />
                             ))}
                             {provided.placeholder}
                         </ContentList>

@@ -58,18 +58,25 @@ const generateManifest = async (dist, components) => {
         dist,
     };
 
-    manifest.exporters =
-        exporters.length > 0
-            ? transformGoMods(exporters, dist.otelcol_version)
-            : "";
-    manifest.processors =
-        processors.length > 0
-            ? transformGoMods(processors, dist.otelcol_version)
-            : "";
-    manifest.receivers =
-        receivers.length > 0
-            ? transformGoMods(receivers, dist.otelcol_version)
-            : "";
+    if (exporters.length > 0) {
+        manifest.exporters = transformGoMods(exporters, dist.otelcol_version);
+    }
+    if (processors.length > 0) {
+        manifest.processors = transformGoMods(processors, dist.otelcol_version);
+    }
+    if (receivers.length > 0) {
+        manifest.receivers = transformGoMods(receivers, dist.otelcol_version);
+    }
+
+    await fetch("http://localhost:8000/build", {
+        method: "POST",
+        body: JSON.stringify(manifest),
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+        },
+        mode: "cors",
+    });
 
     return yaml.dump(manifest);
 };

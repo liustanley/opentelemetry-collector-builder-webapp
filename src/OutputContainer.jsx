@@ -6,20 +6,20 @@ const Container = styled.div`
     height: 100%;
 `;
 
-const Header = styled.div`
+const Header = styled.h2`
     margin-bottom: 8px;
 `;
 
 const BuilderConfigText = styled.textarea`
     width: 100%;
-    height: 200px;
+    height: 190px;
     resize: none;
 `;
 
 export const OutputContainer = ({ builderConfig }) => {
     return (
         <Container>
-            <Header>manifest.yaml</Header>
+            <Header>Config</Header>
             <BuilderConfigText
                 readOnly
                 value={builderConfig}

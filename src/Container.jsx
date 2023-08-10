@@ -15,11 +15,13 @@ const Header = styled.h1`
 const TopPage = styled.div`
     display: flex;
     margin: 16px 32px;
+    height: 30vh;
 `;
 
 const BottomPage = styled.div`
     display: flex;
     margin: 16px 32px;
+    height: 20px;
 `;
 
 const Middle = styled.div`
@@ -57,8 +59,8 @@ const grid = 8;
 const getItemStyle = (isDragging, draggableStyle) => ({
     // some basic styles to make the items look a bit nicer
     userSelect: "none",
-    padding: grid * 2,
-    margin: `0 0 ${grid}px 0`,
+
+    margin: `4px 16px 20px 16px`,
 
     // change background colour if dragging
     background: isDragging ? "lightgreen" : "grey",
@@ -69,7 +71,6 @@ const getItemStyle = (isDragging, draggableStyle) => ({
 
 const getListStyle = (isDraggingOver) => ({
     background: isDraggingOver ? "lightblue" : "lightgrey",
-    padding: grid,
 });
 
 export class Container extends Component {
