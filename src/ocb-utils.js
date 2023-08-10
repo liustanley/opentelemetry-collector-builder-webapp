@@ -30,7 +30,7 @@ const transformGoMods = (goModList, version) => {
     });
 };
 
-const generateManifest = async (components) => {
+const generateManifest = async (dist, components) => {
     const exporters = [],
         processors = [],
         receivers = [];
@@ -55,27 +55,23 @@ const generateManifest = async (components) => {
     );
 
     const manifest = {
-        dist: {
-            name: "otelcol-dev",
-            description: "Basic OTel Collector distribution for Developers",
-            output_path: "./otelcol-dev",
-            otelcol_version: "0.82.0",
-        },
+        dist,
     };
-    manifest.exporters = transformGoMods(
-        exporters,
-        manifest.dist.otelcol_version
-    );
-    manifest.processors = transformGoMods(
-        processors,
-        manifest.dist.otelcol_version
-    );
-    manifest.receivers = transformGoMods(
-        receivers,
-        manifest.dist.otelcol_version
-    );
 
-    console.log(yaml.dump(manifest));
+    manifest.exporters =
+        exporters.length > 0
+            ? transformGoMods(exporters, dist.otelcol_version)
+            : "";
+    manifest.processors =
+        processors.length > 0
+            ? transformGoMods(processors, dist.otelcol_version)
+            : "";
+    manifest.receivers =
+        receivers.length > 0
+            ? transformGoMods(receivers, dist.otelcol_version)
+            : "";
+
+    return yaml.dump(manifest);
 };
 
 export { generateManifest };

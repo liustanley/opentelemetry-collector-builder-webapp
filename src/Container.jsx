@@ -5,14 +5,25 @@ import { Registry } from "./Registry";
 import styled from "@emotion/styled";
 import { generateManifest } from "./ocb-utils";
 import { SelectedComponents } from "./SelectedComponents";
+import { InputContainer } from "./InputContainer";
+import { OutputContainer } from "./OutputContainer";
+
+const Header = styled.h1`
+    margin: 16px 32px;
+`;
+
+const TopPage = styled.div`
+    display: flex;
+    margin: 16px 32px;
+`;
 
 const BottomPage = styled.div`
     display: flex;
-    justify-content: space-between;
+    margin: 16px 32px;
 `;
 
-const Build = styled.button`
-    height: 20px;
+const Middle = styled.div`
+    width: 128px;
 `;
 
 // a little function to help us with reordering the result
@@ -65,6 +76,7 @@ export class Container extends Component {
     state = {
         items: [],
         selected: [],
+        builderConfig: "",
     };
 
     componentDidMount() {
@@ -75,6 +87,7 @@ export class Container extends Component {
         });
 
         this.onRemove = this.onRemove.bind(this);
+        this.handleBuild = this.handleBuild.bind(this);
     }
 
     /**
@@ -140,8 +153,19 @@ export class Container extends Component {
         });
     }
 
-    async onBuild() {
-        await generateManifest(Array.from(this.getList("droppable2")));
+    async handleBuild(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        const formJson = Object.fromEntries(formData.entries());
+
+        const builderConfig = await generateManifest(
+            formJson,
+            this.state.selected
+        );
+        this.setState({
+            builderConfig,
+        });
     }
 
     // Normally you would want to split things out into separate components.
@@ -149,9 +173,12 @@ export class Container extends Component {
     render() {
         return (
             <>
-                <div>
-                    <h1>OpenTelemetry Collector Builder</h1>
-                </div>
+                <Header>OpenTelemetry Collector Builder</Header>
+                <TopPage>
+                    <InputContainer handleBuild={this.handleBuild} />
+                    <Middle />
+                    <OutputContainer builderConfig={this.state.builderConfig} />
+                </TopPage>
                 <BottomPage>
                     <DragDropContext onDragEnd={this.onDragEnd}>
                         <Registry
@@ -159,6 +186,7 @@ export class Container extends Component {
                             getListStyle={getListStyle}
                             getItemStyle={getItemStyle}
                         />
+                        <Middle />
                         <SelectedComponents
                             selected={this.state.selected}
                             onRemove={this.onRemove}
@@ -166,9 +194,6 @@ export class Container extends Component {
                             getItemStyle={getItemStyle}
                         />
                     </DragDropContext>
-                    <Build onClick={async () => await this.onBuild()}>
-                        Build
-                    </Build>
                 </BottomPage>
             </>
         );
