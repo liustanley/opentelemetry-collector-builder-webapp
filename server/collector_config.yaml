@@ -1,0 +1,23 @@
+receivers:
+  hostmetrics:
+    collection_interval: 5s
+    scrapers:
+      cpu:
+      memory:
+
+processors:
+  batch:
+
+exporters:
+  logging:
+    loglevel: debug
+  datadog:
+    api:
+      key: ${env:DD_API_KEY}
+
+service:
+  pipelines:
+    metrics:
+      receivers: [hostmetrics]
+      processors: [batch]
+      exporters: [datadog, logging]
